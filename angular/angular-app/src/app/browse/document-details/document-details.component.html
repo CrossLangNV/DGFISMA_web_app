@@ -1,0 +1,31 @@
+<div class="jumbotron">
+  <h4>{{ document.title }}</h4>
+  <div class="font-italic small">Date of document:</div>
+  <p class="font-italic small mb-5">{{ document.date }}</p>
+
+  <p><b>Type:</b> {{ document.type }}</p>
+  <h6></h6>
+  <p><b>Title prefix:</b> {{ document.titlePrefix }}</p>
+  <p><b>Acceptance state:</b></p>
+  <p-selectButton
+    styleClass="mb-4"
+    [options]="stateValues"
+    [(ngModel)]="acceptanceState.value"
+    (onChange)="onStateChange($event)"
+  >
+  </p-selectButton>
+  <p>
+    <b>From:&nbsp;</b> <a href="{{ document.url }}">{{ document.url }}</a>
+  </p>
+  <p><b>Summary:</b></p>
+  <div>
+    <p class="col-lg-7 text-justify mb-5">{{ document.summary }}</p>
+  </div>
+  <div class="delete-document mt-5">
+    <button class="btn btn-danger" (click)="onDelete()">
+      <fa-icon [icon]="deleteIcon"></fa-icon> Delete document
+    </button>
+    <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle">
+    </p-confirmDialog>
+  </div>
+</div>

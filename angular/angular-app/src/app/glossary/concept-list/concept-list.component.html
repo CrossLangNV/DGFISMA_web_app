@@ -1,0 +1,346 @@
+<div class="jumbotron p-1 m-2">
+  <div class="form-group">
+    <div class="row">
+      <p-overlayPanel #op>
+        <ng-template pTemplate>
+          <p><b>Latest query:</b></p>
+          <code>
+            {{latestQuery.query}}
+          </code>
+          <p><b>Created at:</b> {{latestQuery.created_at | date:'long'}}</p>
+        </ng-template>
+      </p-overlayPanel>
+      <div class="col">
+        <div class="d-flex justify-content-between p-0">
+          <div class="input-group input-group-sm m-1">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-sm"
+                >Search for..</span
+              >
+            </div>
+            <input
+              id="content"
+              type="search"
+              name="content"
+              class="form-control form-control-sm"
+              [(ngModel)]="keyword"
+              (ngModelChange)="onSearch($event)"
+            />
+          </div>
+          <select
+            class="form-control form-control-sm m-1 col-2"
+            [(ngModel)]="filterType"
+            (change)="filterResetPage()"
+          >
+            <option *ngFor="let f of filters" [ngValue]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+          <select
+            class="form-control form-control-sm m-1 col-2"
+            [(ngModel)]="otherUser"
+            (change)="filterResetPage()"
+          >
+            <option *ngFor="let f of usersFilter" [ngValue]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+          <select
+            class="form-control form-control-sm m-1 col-2"
+            [(ngModel)]="website"
+            (change)="filterResetPage()"
+          >
+            <option *ngFor="let f of websites" [ngValue]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+          <div class="form-check m-1 pl-0 pt-1">
+            <span ngbTooltip="Show your own validations">
+              <p-inputSwitch
+                (onChange)="filterResetPage()"
+                [(ngModel)]="showOnlyOwn"
+                >Own</p-inputSwitch
+              ></span
+            >
+          </div>
+          <div class="form-check m-1 pl-0 pt-1">
+            <span ngbTooltip="Show concepts from your bookmarked documents">
+              <p-inputSwitch
+                (onChange)="filterResetPage()"
+                [(ngModel)]="showBookmarked"
+                >Own</p-inputSwitch
+              >
+            </span>
+          </div>
+          <div class="form-check m-1 pl-0 pt-1">
+            <span ngbTooltip="Save database queries">
+              <p-inputSwitch
+                (onChange)="filterResetPage()"
+                [(ngModel)]="showDbQueries"
+              >Own</p-inputSwitch
+              >
+            </span>
+          </div>
+
+          <div class="form-check m-1 pl-0 pt-1">
+
+            <button (click)="fetchDbQueries(); op.toggle($event)" label="" pTooltip="Show query (SQL)" tooltipPosition="bottom" pButton pRipple type="button" icon="pi pi-chevron-circle-right" class="p-button-sm"></button>
+
+          </div>
+          <div class="form-check m-1 pl-0 pt-1">
+            <button type="button" pButton pRipple icon="pi pi-file-o" (click)="exportCSV()" class="p-mr-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <hr class="my-2" />
+            <div
+              class="d-flex justify-content-between"
+              style="font-size: 0.75rem; height: 2rem"
+            >
+              <div>
+                <p-selectButton
+                  styleClass="mb-4"
+                  [options]="modes"
+                  [(ngModel)]="currentMode"
+                  (onChange)="onModeChange($event)"
+                >
+                </p-selectButton>
+              </div>
+              <div>
+                <button *ngIf="filterActive" (click)="resetFilters()" label="Reset filters" pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined"></button>
+                {{ currentMode }} found: <u>{{ collectionSize }}</u>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-2" />
+    <p-table
+      *ngIf="currentMode == 'concepts'"
+      [value]="concepts"
+      [paginator]="true"
+      [rows]="5"
+      [lazy]="true"
+      [rowHover]="true"
+      (onLazyLoad)="fetchObjectsLazy($event)"
+      [totalRecords]="collectionSize"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[5, 10, 50]"
+      [(selection)]="selectedConcepts"
+      [selectionMode]="single"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="name">
+            Label <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th style="width: 20rem">Tags</th>
+          <th>States</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-concept>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="concept"></p-tableCheckbox>
+          </td>
+          <td>
+            <a
+              (click)="setIndex(concept.id)"
+              [class.font-weight-bold]="selectedIndex === concept.id"
+              [routerLink]="[concept.id]"
+              pTooltip="{{ concept.definition }}"
+              >{{ concept.name || "(no label)" }}</a
+            >&nbsp;
+            <span
+              *ngIf="concept.comments.length > 0"
+              class="badge badge-secondary"
+              >{{ concept.comments.length }}</span
+            >
+          </td>
+          <td>
+            <p-chips
+              [(ngModel)]="concept.tags"
+              allowDuplicate="false"
+              field="value"
+              (onAdd)="onAddTag($event, concept.tags, concept.id)"
+              (onRemove)="onRemoveTag($event)"
+              (onChipClick)="onClickTag($event)"
+            ></p-chips>
+          </td>
+          <td>
+            <p-chips
+              [(ngModel)]="concept.acceptance_states_count"
+              disabled="true"
+              styleClass="p-chips-state"
+              field="value"
+            >
+              <ng-template let-state pTemplate="state">
+                <div [className]="state.style">
+                  {{state.value}} <fa-icon [icon]="userIcon"></fa-icon>
+                </div>
+              </ng-template>
+            </p-chips>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="paginatorleft">
+        <div class="d-flex justify-content-between p-0">
+          <select
+            class="form-control form-control-sm m-1"
+            [(ngModel)]="action"
+            [disabled]="selectedConcepts.length == 0"
+          >
+            <option *ngFor="let c of stateValues" [ngValue]="c.value">
+              {{ c.label }}
+            </option>
+          </select>
+          <button
+            type="submit"
+            class="btn btn-link btn-sm"
+            [disabled]="selectedConcepts.length == 0 || action === 'none'"
+            (click)="doAction()"
+          >
+            Apply
+          </button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="paginatorright">
+        <!-- <div class="ml-3 p-1">
+          <input
+            class="input-sm"
+            type="number"
+            [min]="1"
+            [max]="1000"
+            [(ngModel)]="page"
+            (ngModelChange)="changePage($event)"
+          />
+        </div> -->
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td colspan="4">No records found</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody" let-columns="columns">
+        <tr>
+          <td colspan="4">Loading...</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <!-- New table -->
+    <p-table
+      *ngIf="currentMode == 'lemmas'"
+      [value]="lemmas"
+      [paginator]="true"
+      [rows]="5"
+      [lazy]="true"
+      [rowHover]="true"
+      (onLazyLoad)="fetchObjectsLazy($event)"
+      [totalRecords]="collectionSize"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[5, 10, 50]"
+      [(selection)]="selectedConcepts"
+      [selectionMode]="single"
+      dataKey="name"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">
+            Label <p-sortIcon field="name"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-lemma let-expanded="expanded">
+        <tr>
+          <td>
+            <button
+              type="button"
+              pButton
+              pRipple
+              [pRowToggler]="lemma"
+              class="p-button-text p-button-rounded p-button-plain"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            ></button
+            >&nbsp;
+            <span class="p-text-bold ps-4">{{ lemma.name }}</span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="rowexpansion" let-lemma>
+        <tr>
+          <td>
+            <p-table [value]="lemma.concepts" dataKey="id">
+              <ng-template pTemplate="header">
+                <th>Label</th>
+                <th style="width: 20rem">Tags</th>
+                <th>States</th>
+              </ng-template>
+              <ng-template pTemplate="body" let-concept>
+                <tr>
+                  <td>
+                    <a
+                      (click)="setIndex(concept.id)"
+                      [class.font-weight-bold]="selectedIndex === concept.id"
+                      [routerLink]="[concept.id]"
+                      pTooltip="{{ concept.definition }}"
+                      >{{ concept.name || "(no label)" }}</a
+                    >&nbsp;
+                    <span
+                      *ngIf="concept.comments.length > 0"
+                      class="badge badge-secondary"
+                      >{{ concept.comments.length }}</span
+                    >
+                  </td>
+                  <td>
+                    <p-chips
+                      [(ngModel)]="concept.tags"
+                      allowDuplicate="false"
+                      field="value"
+                      (onAdd)="onAddTag($event, concept.tags, concept.id)"
+                      (onRemove)="onRemoveTag($event)"
+                      (onChipClick)="onClickTag($event)"
+                    ></p-chips>
+                  </td>
+                  <td>
+                    <p-chips
+                      [(ngModel)]="concept.acceptance_states_count"
+                      disabled="true"
+                      styleClass="p-chips-state"
+                      field="value"
+                    >
+                      <ng-template let-state pTemplate="state">
+                        <div [className]="state.style">
+                          {{state.value}} <fa-icon [icon]="userIcon"></fa-icon>
+                        </div>
+                      </ng-template>
+                    </p-chips>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td>No records found</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody" let-columns="columns">
+        <tr>
+          <td>Loading...</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+  <router-outlet></router-outlet>
+</div>

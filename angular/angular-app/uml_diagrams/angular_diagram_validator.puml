@@ -1,0 +1,357 @@
+@startuml
+interface Adapter<T> {
+    +adapt(item: any): T
+    +encode(item: any): T
+}
+class SolrFile {
+    +documentTitle: string
+    +website: string
+    +rawFile: string
+    +id: string
+    +documentId: string
+    +url: string
+    +date: Date
+    +language: string
+    +docType: string
+    +content: string
+}
+class SolrFileAdapter implements Adapter {
+    +adapt(item: any): SolrFile
+    +encode(solrFile: SolrFile): any
+}
+class Attachment {
+    +id: string
+    +file: string
+    +url: string
+    +documentId: string
+    +content: string
+}
+class AttachmentAdapter implements Adapter {
+    +adapt(item: any): Attachment
+    +encode(attachment: Attachment): any
+}
+interface DocumentResults {
+    +count: number
+    +count_total: number
+    +count_unvalidated: number
+    +count_rejected: number
+    +count_validated: number
+    +count_autorejected: number
+    +count_autovalidated: number
+    +next: string
+    +previous: string
+    +results: Document[]
+}
+class Document {
+    +id: string
+    +title: string
+    +titlePrefix: string
+    +type: string
+    +date: Date
+    +acceptanceState: string
+    +acceptanceStateValue: string
+    +url: string
+    +website: string
+    +websiteName: string
+    +summary: string
+    +content: string
+    +various: string
+    +celex: string
+    +eli: string
+    +status: string
+    +author: string
+    +attachments: Attachment[]
+    +commentIds: string[]
+    +tags: string[]
+    +pull: boolean
+    +consolidatedVersions: string
+}
+class DocumentAdapter implements Adapter {
+    +adapt(item: any): Document
+    +encode(document: Document): any
+}
+class Website {
+    +id: string
+    +name: string
+    +url: string
+    +content: string
+    +totalDocuments: number
+}
+class WebsiteAdapter implements Adapter {
+    +adapt(item: any): Website
+    +encode(website: Website): any
+}
+class AcceptanceState {
+    +username: string
+    +id: string
+    +documentId: string
+    +userId: string
+    +value: string
+}
+class AcceptanceStateAdapter implements Adapter {
+    +adapt(item: any): AcceptanceState
+    +encode(acceptanceState: AcceptanceState): any
+}
+class Comment {
+    +username: string
+    +id: string
+    +value: string
+    +documentId: string
+    +userId: string
+    +createdAt: Date
+}
+class CommentAdapter implements Adapter {
+    +adapt(item: any): Comment
+    +encode(comment: Comment): any
+}
+class Tag {
+    +id: string
+    +value: string
+    +documentId: string
+}
+class TagAdapter implements Adapter {
+    +adapt(item: any): Tag
+    +encode(tag: Tag): any
+}
+interface ConceptResults {
+    +count: number
+    +count_total: number
+    +count_unvalidated: number
+    +count_rejected: number
+    +count_validated: number
+    +count_autorejected: number
+    +count_autovalidated: number
+    +next: string
+    +previous: string
+    +results: Concept[]
+}
+class Concept {
+    +id: string
+    +name: string
+    +definition: string
+    +documentIds: string[]
+    +tags: string[]
+    +commentIds: string[]
+}
+class ConceptAdapter implements Adapter {
+    +adapt(item: any): Concept
+    +encode(concept: Concept): any
+}
+class ConceptTag {
+    +id: string
+    +value: string
+    +conceptId: string
+}
+class ConceptTagAdapter implements Adapter {
+    +adapt(item: any): ConceptTag
+    +encode(tag: ConceptTag): any
+}
+class RoResults {
+    +count: number
+    +count_unvalidated: number
+    +count_total: number
+    +count_rejected: number
+    +count_validated: number
+    +count_autorejected: number
+    +count_autovalidated: number
+    +next: string
+    +previous: string
+    +results: ReportingObligation[]
+}
+class ReportingObligation {
+    +id: string
+    +name: string
+    +obligation: string
+    +documentIds: string[]
+    +tags: string[]
+    +commentIds: string[]
+}
+class RoAdapter implements Adapter {
+    +adapt(item: any): ReportingObligation
+    +encode(ro: ReportingObligation): any
+}
+class ApiService {
+    +API_URL: any
+    +API_GLOSSARY_URL: any
+    +ROS_MOCKED: ReportingObligation[]
+    +messageSource: Subject<string>
+    -http: HttpClient
+    -solrFileAdapter: SolrFileAdapter
+    -documentAdapter: DocumentAdapter
+    -websiteAdapter: WebsiteAdapter
+    -attachmentAdapter: AttachmentAdapter
+    -stateAdapter: AcceptanceStateAdapter
+    -commentAdapter: CommentAdapter
+    -tagAdapter: TagAdapter
+    -conceptTagAdapter: ConceptTagAdapter
+    -conceptAdapter: ConceptAdapter
+    -roAdapter: RoAdapter
+    +getSolrFiles(pageNumber: number, pageSize: number): Observable<any[]>
+    +searchSolrFiles(pageNumber: number, pageSize: number, term: string): Observable<any[]>
+    +searchSolrDocuments(pageNumber: number, pageSize: number, term: string, idsFilter: string[], sortBy: string, sortDirection: string): Observable<any[]>
+    +getWebsites(): Observable<Website[]>
+    +getWebsite(id: string): Observable<Website>
+    +createWebsite(website: Website): Observable<any>
+    +deleteWebsite(id: any): Observable<any>
+    +updateWebsite(website: Website): Observable<Website>
+    +getDocumentResults(page: number, searchTerm: string, filterType: string, email: string, website: string, showOnlyOwn: boolean, filterTag: string, sortBy: string): Observable<DocumentResults>
+    +getDocuments(page: Number): Observable<Document[]>
+    +getDocument(id: string): Observable<Document>
+    +getDocumentSyncWithAttachments(id: string): Observable<Document>
+    +createDocument(document: Document): Observable<Document>
+    +deleteDocument(id: string): Observable<any>
+    +updateDocument(document: Document): Observable<Document>
+    +getAttachment(id: string): Observable<Attachment>
+    +addAttachment(formData: FormData): Observable<Attachment>
+    +deleteAttachment(id: string): Observable<any>
+    +getEURLEXxhtml(celex_id: string): Observable<any>
+    +getDocumentStats(): Observable<any>
+    +getStateValues(): Observable<string[]>
+    +getState(id: string): Observable<AcceptanceState>
+    +getComment(id: string): Observable<Comment>
+    +addComment(comment: Comment): Observable<Comment>
+    +deleteComment(id: string): Observable<any>
+    +addTag(tag: Tag): Observable<Tag>
+    +deleteTag(id: string): Observable<any>
+    +updateState(state: AcceptanceState): Observable<AcceptanceState>
+    +isAdmin(): Observable<boolean>
+    +getConcepts(page: number, searchTerm: string, filterTag: string, filterType: string, sortBy: string): Observable<ConceptResults>
+    +getConcept(id: string): Observable<Concept>
+    +getConceptComment(id: string): Observable<Comment>
+    +addConceptComment(comment: Comment): Observable<Comment>
+    +deleteConceptComment(id: string): Observable<any>
+    +addConceptTag(tag: ConceptTag): Observable<ConceptTag>
+    +deleteConceptTag(id: string): Observable<any>
+    +getRos(page: number, searchTerm: string, filterTag: string, filterType: string, sortBy: string): Observable<RoResults>
+    +getRo(id: string): Observable<ReportingObligation>
+}
+class User {
+    +id: number
+    +username: string
+    +password: string
+    +firstName: string
+    +lastName: string
+    +email: string
+    +dateJoined: Date
+    +lastLogin: Date
+    +isSuperuser: boolean
+}
+class UserAdapter implements Adapter {
+    +adapt(item: any): User
+    +encode(user: User): any
+}
+class ApiAdminService {
+    +API_URL: any
+    -http: HttpClient
+    -userAdapter: UserAdapter
+    -stateAdapter: AcceptanceStateAdapter
+    +getUsers(): Observable<User[]>
+    +getUser(id: string): Observable<User>
+    +getStates(): Observable<AcceptanceState[]>
+}
+class DjangoUser {
+    +username: string
+    +access_token: string
+    +expires_in: number
+    +token_type: string
+    +scope: string
+    +refresh_token: string
+}
+class AuthenticationService {
+    -currentDjangoUserSubject: BehaviorSubject<DjangoUser>
+    +currentDjangoUser: Observable<DjangoUser>
+    -http: HttpClient
+    +currentDjangoUserValue: DjangoUser
+    +login(username: any, password: any): Observable<any>
+    +signInWithGoogle(userData: SocialUser): Observable<any>
+    +logout(): void
+}
+class ArborService {
+    -_loadedLibraries: { [url: string]: ReplaySubject<any>; }
+    -document: any
+    +lazyLoadArbor(): Observable<any>
+    -loadScript(url: string): Observable<any>
+}
+class DocumentValidateComponent implements OnInit {
+    +document: Document
+    +consolidatedVersions: any
+    +stateValues: SelectItem[]
+    +cities: SelectItem[]
+    +selectedCities: string[]
+    +acceptanceState: AcceptanceState
+    +comments: Comment[]
+    +newComment: Comment
+    +deleteIcon: IconDefinition
+    +currentDjangoUser: DjangoUser
+    +attachment: Attachment
+    -route: ActivatedRoute
+    -router: Router
+    -service: ApiService
+    -adminService: ApiAdminService
+    -authenticationService: AuthenticationService
+    -modalService: NgbModal
+    -messageService: MessageService
+    -confirmationService: ConfirmationService
+    -arborService: ArborService
+    -angularDocument: any
+    +ngOnInit(): void
+    +setupArbor(): void
+    +onStateChange(event: any): void
+    +onAddComment(): void
+    +onDeleteComment(comment: Comment): void
+    +openModal(targetModal: any, attachmentId: string): void
+    +onSubmit(): void
+    +goToLink(url: string): void
+}
+SolrFileAdapter *-- SolrFile
+AttachmentAdapter *-- Attachment
+DocumentResults *-- Document
+Document *-- Attachment
+DocumentAdapter *-- Document
+WebsiteAdapter *-- Website
+AcceptanceStateAdapter *-- AcceptanceState
+CommentAdapter *-- Comment
+TagAdapter *-- Tag
+ConceptResults *-- Concept
+ConceptAdapter *-- Concept
+ConceptTagAdapter *-- ConceptTag
+RoResults *-- ReportingObligation
+RoAdapter *-- ReportingObligation
+ApiService *-- ReportingObligation
+ApiService *-- SolrFileAdapter
+ApiService *-- DocumentAdapter
+ApiService *-- WebsiteAdapter
+ApiService *-- AttachmentAdapter
+ApiService *-- AcceptanceStateAdapter
+ApiService *-- CommentAdapter
+ApiService *-- TagAdapter
+ApiService *-- ConceptTagAdapter
+ApiService *-- ConceptAdapter
+ApiService *-- RoAdapter
+ApiService *-- Website
+ApiService *-- DocumentResults
+ApiService *-- Document
+ApiService *-- Attachment
+ApiService *-- AcceptanceState
+ApiService *-- Comment
+ApiService *-- Tag
+ApiService *-- ConceptResults
+ApiService *-- Concept
+ApiService *-- ConceptTag
+ApiService *-- RoResults
+UserAdapter *-- User
+ApiAdminService *-- UserAdapter
+ApiAdminService *-- AcceptanceStateAdapter
+ApiAdminService *-- User
+ApiAdminService *-- AcceptanceState
+AuthenticationService *-- DjangoUser
+DocumentValidateComponent *-- Document
+DocumentValidateComponent *-- AcceptanceState
+DocumentValidateComponent *-- Comment
+DocumentValidateComponent *-- DjangoUser
+DocumentValidateComponent *-- Attachment
+DocumentValidateComponent *-- ApiService
+DocumentValidateComponent *-- ApiAdminService
+DocumentValidateComponent *-- AuthenticationService
+DocumentValidateComponent *-- ArborService
+@enduml

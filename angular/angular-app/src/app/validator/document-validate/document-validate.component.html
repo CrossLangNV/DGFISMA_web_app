@@ -1,0 +1,335 @@
+<div class="jumbotron m-2" *ngIf="document; else elseBlock">
+  <h4>
+    {{ document.websiteName }} :
+    <span *ngIf="document.titlePrefix">{{ document.titlePrefix }} : </span>
+    <a (click)="goToLink(document.url)" class="text-primary"
+      >{{ document.title || "(no title)" }}
+    </a>
+  </h4>
+
+  <p>
+    <span class="font-italic">{{ document.date | date }}</span>
+  </p>
+  <p *ngIf="document.type" class=""><u>Type:</u> {{ document.type }}</p>
+  <p *ngIf="document.author" class=""><u>Author:</u> {{ document.author }}</p>
+  <p *ngIf="document.celex" class=""><u>Celex:</u> {{ document.celex }}</p>
+  <p *ngIf="document.customId" class=""><u>Identifier:</u> {{ document.customId }}</p>
+  <p *ngIf="document.eli" class=""><u>Eli:</u> {{ document.eli }}</p>
+  <p *ngIf="document.status" class=""><u>Status:</u> {{ document.status }}</p>
+  <p *ngIf="document.dateOfEffect" class="">
+    <u>Date of force:</u> {{ document.dateOfEffect | date }}
+  </p>
+  <p *ngIf="document.various" class="">
+    <u>Various:</u> {{ document.various }}
+  </p>
+  <div *ngIf="consolidatedVersions.size > 0">
+    <hr class="my-4" />
+    <p><b>Consolidated versions:</b></p>
+    <div *ngFor="let consolidated of consolidatedVersions | keyvalue">
+      <button
+        type="button"
+        class="btn btn-primary my-1"
+        (click)="openModal(editProfileModal, 'CELEX:' + consolidated.key)"
+      >
+        {{ consolidated.value | date }}
+      </button>
+    </div>
+  </div>
+  <div *ngIf="document.summary">
+    <hr class="my-4" />
+    <samp class="text-justify">{{ document.summary }}</samp>
+  </div>
+
+  <div>
+    <p><b>Acceptance states</b></p>
+    <p-chips
+      [(ngModel)]="document.acceptanceStates"
+      disabled="true"
+      styleClass="p-chips-state"
+    >
+      <ng-template let-state pTemplate="state">
+        <div
+          [className]="state.value | lowercase"
+          *ngIf="state.user"
+          pTooltip="created: {{
+            state.created_at | date: 'MMM d, y - h:mm a'
+          }}&#013;last updated: {{
+            state.updated_at | date: 'MMM d, y - h:mm a'
+          }}"
+          tooltipPosition="top"
+        >
+          {{ state.user.username }}
+          <fa-icon
+            *ngIf="
+              containsGroup(state.user.groups, 'decision');
+              else elseUserIcon
+            "
+            [icon]="userLockIcon"
+          ></fa-icon>
+          <ng-template #elseUserIcon
+            ><fa-icon [icon]="userIcon"></fa-icon
+          ></ng-template>
+        </div>
+        <div
+          [className]="state.value | lowercase"
+          *ngIf="state.probability_model"
+          pTooltip="confidence: {{
+            state.accepted_probability | percent: '1.0-2'
+          }}, created: {{
+            state.created_at | date: 'MMM d, y - h:mm a'
+          }}, last updated: {{ state.updated_at | date: 'MMM d, y - h:mm a' }}"
+          tooltipPosition="top"
+        >
+          {{ state.probability_model }}
+          <fa-icon [icon]="chipIcon"></fa-icon>
+        </div>
+      </ng-template>
+    </p-chips>
+  </div>
+
+  <div *ngIf="document.definition.length > 0">
+    <hr class="my-4" />
+    <p>
+      <b>Concept definitions ({{ document.definition.length }}):</b>
+    </p>
+    <ul class="list-group">
+      <li *ngFor="let concept of document.definition" class="list-group-item">
+        <a [routerLink]="['/glossary', concept.id]"
+          ><u>{{ concept.name }}</u></a
+        >
+        <br />
+        <a [routerLink]="['/document/definition', concept.id, document.id]">{{
+          concept.definition
+        }}</a>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="document.ro_occurrance.length > 0">
+    <hr class="my-4" />
+    <p>
+      <b>Reporting Obligations ({{ document.ro_occurrance.length }}):</b>
+    </p>
+    <ul class="list-group">
+      <li *ngFor="let ro of document.ro_occurrance" class="list-group-item">
+        <a [routerLink]="['/ro', ro.id]"
+        >{{ ro.name }}</a
+        >
+      </li>
+    </ul>
+  </div>
+  <div *ngIf="similarDocuments.length > 0">
+    <hr class="my-4" />
+    <p><b>Similar documents:</b></p>
+    <div>
+      <p>
+        Number of candidates:
+        <p-inputNumber
+          [(ngModel)]="maxSimilarDocuments"
+          [min]="0"
+          [max]="100"
+          [showButtons]="true"
+          (onBlur)="onNumberCandidatesBlur($event)"
+        >
+        </p-inputNumber>
+      </p>
+      <p>Similarity greater than {{ similarityThreshold }} %</p>
+      <p-slider
+        [(ngModel)]="similarityThreshold"
+        (onSlideEnd)="onSimilarityChange($event)"
+      ></p-slider>
+    </div>
+    <div>
+      <table class="table table-striped table-bordered table-hover my-4">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Document</th>
+            <th scope="col">Website</th>
+            <th scope="col">Similarity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let doc of similarDocuments
+                | slice: (similarDocsPage - 1) * 5:(similarDocsPage - 1) * 5 + 5
+            "
+          >
+            <td>
+              <a [routerLink]="['/validator', doc.id]">
+                {{ doc.title || "(no title)" | truncate: [120, "..."] }}
+              </a>
+            </td>
+            <td>{{ doc.website }}</td>
+            <td>{{ doc.coeff | percent: "1.0-2" }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ngb-pagination
+        [(page)]="similarDocsPage"
+        [pageSize]="5"
+        [rotate]="true"
+        [collectionSize]="similarDocuments.length"
+      >
+      </ngb-pagination>
+    </div>
+  </div>
+  <div >
+    <hr class="my-4" />
+    <p><b>Attachments:</b></p>
+    <table>
+      <tr *ngIf="document.file_url">
+        <td>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="openModal(editProfileModal, document.id)"
+          >
+            {{ document.file_url }}
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="openModal(editProfileModal, 'CELEX:' + document.id)"
+          >
+            HTML
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <hr class="my-4" />
+
+  <div>
+    <p><b>Choose Acceptance State:</b></p>
+    <p-selectButton
+      styleClass="mb-4"
+      [options]="stateValues"
+      [(ngModel)]="document.acceptanceStateValue"
+      (onChange)="onStateChange($event)"
+    >
+    </p-selectButton>
+  </div>
+  <div *ngIf="comments.length">
+    <p><b>Comments:</b></p>
+    <div class="card" *ngFor="let comment of comments">
+      <div class="card-header">
+        {{ comment.username }} ({{
+          comment.createdAt | date: "MMM d, y - h:mm a"
+        }})
+      </div>
+      <div class="card-body">
+        <p class="card-text">{{ comment.value }}</p>
+        <div class="delete-comment my-2">
+          <button class="btn btn-secondary" (click)="onDeleteComment(comment)">
+            <fa-icon [icon]="deleteIcon"></fa-icon> Delete
+          </button>
+          <p-confirmDialog
+            header="Confirmation"
+            icon="pi pi-exclamation-triangle"
+          >
+          </p-confirmDialog>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <form (ngSubmit)="onAddComment()" #addCommentForm="ngForm">
+      <div class="form-group">
+        <label for="comment"><b>New comment:</b></label>
+        <textarea
+          type="text"
+          class="form-control"
+          id="comment"
+          [(ngModel)]="newComment.value"
+          name="comment"
+        ></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Add</button>
+    </form>
+  </div>
+  <hr class="my-4" />
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-4">
+        <div *ngIf="document.bookmark == true">
+          <form (ngSubmit)="onRemoveBookmark()">
+            <button type="submit" class="btn btn-success">
+              Remove from bookmarks
+            </button>
+          </form>
+        </div>
+        <div *ngIf="document.bookmark == false">
+          <form (ngSubmit)="onAddBookmark()">
+            <button type="submit" class="btn btn-success">
+              Add to my bookmarks
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- <div class="col-4">
+        <div>
+          <button type="submit" [disabled]="webanno_clicked"  (click)="onWebAnno();" class="btn btn-success">View in WebAnno</button>
+        </div>
+      </div> -->
+    </div>
+  </div>
+  <ng-template #elseBlock>
+    <p>Select a document above.</p>
+  </ng-template>
+</div>
+
+<!-- Modal dialog-->
+<ng-template #editProfileModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="editProfileLabel">
+      Attachment: {{ document.file_url }}
+    </h5>
+    <button
+      type="button"
+      class="close"
+      (click)="modal.dismiss()"
+      aria-label="Close"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+   <div [innerHTML]="this.content_annotated" class="modal-body"></div>
+
+  <div class="modal-footer justify-content-between">
+    <div class="mr-auto">
+      <fa-icon [icon]="squareIcon" style="color: #78bcfc"></fa-icon> Definition
+      <fa-icon [icon]="squareIcon" style="color: #F66161"></fa-icon> Term
+      <fa-icon [icon]="squareIcon" style="color: #7BEB7B"></fa-icon> Reporting Obligation
+    </div>
+    <a
+      *ngIf="document.file_url"
+      (click)="goToLink(document.file_url)"
+      class="text-primary"
+    >
+      <button type="button" class="btn btn-primary">See original</button>
+    </a>
+    <a *ngIf="document.celex"
+      (click)="
+        goToLink(
+          'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:' +
+            document.celex +
+            '&from=EN'
+        )
+      "
+      class="text-primary"
+    >
+      <button type="button" class="btn btn-primary">See original</button>
+    </a>
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+      Close
+    </button>
+  </div>
+</ng-template>
+
+<p-toast position="top-center"></p-toast>

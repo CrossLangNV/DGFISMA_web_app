@@ -1,0 +1,91 @@
+<div *ngIf="website">
+  <div class="jumbotron">
+    <div class="row text-break">
+      <h3 (click)="titleIsBeingEdited = true" *ngIf="!titleIsBeingEdited" class="name">
+        <!-- <h3 class="name"> -->
+        <span class="editable">{{ website.name }}</span>
+      </h3>
+      <h3 id="title-edit" *ngIf="titleIsBeingEdited" class="name col-lg-12">
+        <input type="text" id="new-title" name="new-title" value="{{ website.name }}"
+          (keydown.enter)="onNameChanged($event)" class="col-lg-11" />
+        <button (click)="titleIsBeingEdited = false" type="button" class="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </h3>
+    </div>
+
+    <div class="row text-break">
+      <div (click)="urlIsBeingEdited = true" *ngIf="!urlIsBeingEdited" class="url mt-4 mb-3">
+        <!-- <div class="url mt-4 mb-3"> -->
+        URL: <span class="editable">{{ website.url }}</span>
+      </div>
+      <div id="url-edit" *ngIf="urlIsBeingEdited" class="url col-lg-12 mt-4 mb-3">
+        <input type="text" id="new-url" name="new-url" value="{{ website.url }}" (keydown.enter)="onUrlChanged($event)"
+          class="col-lg-11" />
+        <button (click)="urlIsBeingEdited = false" type="button" class="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="row text-break">
+      <div (click)="contentIsBeingEdited = true" *ngIf="!contentIsBeingEdited" class="content mt-4 mb-3 text-justify">
+        <!-- <div class="content mt-4 mb-3 text-justify"> -->
+        Content: <span class="editable">{{ website.content }}</span>
+      </div>
+      <div id="content-edit" *ngIf="contentIsBeingEdited" class="content col-lg-12 mt-4 mb-3">
+        <textarea id="new-content" name="new-content" value="{{ website.content }}" (keydown.enter)="onContentChanged($event)"
+          class="col-lg-11"></textarea>
+        <button (click)="contentIsBeingEdited = false" type="button" class="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="delete-website my-2" class="delete mt-4 mb-5">
+        <button class="btn btn-danger" (click)="onDelete()">
+          <fa-icon [icon]="deleteIcon"></fa-icon> Delete
+        </button>
+        <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle">
+        </p-confirmDialog>
+      </div>
+    </div>
+
+    <div class="row">
+      <h4 class="mb-4">Documents</h4>
+    </div>
+    <div class="row create-document mt-3 mb-4">
+      <button class="btn btn-info" routerLink="add">
+        <fa-icon [icon]="addIcon"></fa-icon> Add
+      </button>
+    </div>
+    <ul class="list-group list-group-flush">
+      <div class="row">
+        <li
+          class="list-group-item mt-4 col-lg-12 px-4 py-4"
+          *ngFor="let doc of documents"
+        >
+          <h4 class="mb-3">
+            <a routerLink="document/{{ doc.id }}">{{ doc.title }}</a
+            >&nbsp;<span *ngIf="doc.pull" class="badge badge-secondary">NEW</span>
+          </h4>
+          <p class="small font-italic">{{ doc.date }}</p>
+          <div>
+            <p>
+              <a class="document-url" href="{{ doc.url }}">{{ doc.url }}</a>
+            </p>
+          </div>
+          <div>
+            <p class="text-justify">{{ doc.summary }}</p>
+          </div>
+        </li>
+      </div>
+    </ul>
+    <div class="row my-4">
+      <ngb-pagination [(page)]="page" [pageSize]="pageSize" [collectionSize]="totalDocuments" [maxSize]="10" [ellipses]="true"
+        [rotate]="true" (pageChange)="loadPage($event)">
+      </ngb-pagination>
+    </div>
+  </div>
+</div>

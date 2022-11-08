@@ -1,0 +1,4 @@
+[submodule "uima-html-to-text"]
+	path = uima-html-to-text
+	url = git@gitlab.crosslang.local:dg-fisma/uima-html-to-text.git
+	branch = master

@@ -1,0 +1,235 @@
+<div *ngIf="concept">
+  <div class="jumbotron">
+    <h3 class="mb-4">{{ concept.name }}</h3>
+    <div [innerHTML]="definitionHtml"></div>
+    <div *ngIf="concept.other.length > 0">
+      <hr class="my-4" />
+      <p><b>Other terms ({{ concept.other.length }}):</b></p>
+      <ul  class="list-group">
+        <li *ngFor="let other_concept of concept.other" class="list-group-item">
+            <a [routerLink]="['/glossary', other_concept.id ]" ><u>{{other_concept.name}}</u></a> <br>
+        </li>
+      </ul>
+    </div>
+    <hr class="my-4" />
+    <div>
+      <p><b>Acceptance states</b></p>
+      <p-chips
+        [(ngModel)]="concept.acceptanceStates"
+        disabled="true"
+        styleClass="p-chips-state"
+      >
+        <ng-template let-state pTemplate="state">
+          <div
+            [className]="state.value | lowercase"
+            *ngIf="state.user"
+            pTooltip="created: {{
+                    state.created_at | date: 'MMM d, y - h:mm a'
+                  }}&#013;last updated: {{
+                    state.updated_at | date: 'MMM d, y - h:mm a'
+                  }}"
+            tooltipPosition="top"
+          >
+            {{ state.user.username }}
+            <fa-icon
+              *ngIf="
+                      containsGroup(state.user.groups, 'decision');
+                      else elseUserIcon
+                    "
+              [icon]="userLockIcon"
+            ></fa-icon>
+            <ng-template #elseUserIcon>
+              <fa-icon [icon]="userIcon"></fa-icon>
+            </ng-template>
+          </div>
+          <div
+            [className]="state.value | lowercase"
+            *ngIf="state.probability_model"
+            pTooltip="confidence: {{
+                    state.accepted_probability | percent: '1.0-2'
+                  }}, created: {{
+                    state.created_at | date: 'MMM d, y - h:mm a'
+                  }}, last updated: {{
+                    state.updated_at | date: 'MMM d, y - h:mm a'
+                  }}"
+            tooltipPosition="top"
+          >
+            {{ state.probability_model }}
+            <fa-icon [icon]="chipIcon"></fa-icon>
+          </div>
+        </ng-template>
+      </p-chips>
+    </div>
+    <div>
+      <p><b>Choose Acceptance State:</b></p>
+      <p-selectButton
+        styleClass="mb-4"
+        [options]="stateValues"
+        [(ngModel)]="concept.acceptanceStateValue"
+        (onChange)="onStateChange($event)"
+      >
+      </p-selectButton>
+    </div>
+    <div *ngIf="comments.length">
+      <p><b>Comments:</b></p>
+      <div class="card" *ngFor="let comment of comments">
+        <div class="card-header">
+          {{ comment.username }} ({{
+          comment.createdAt | date: "MMM d, y - h:mm a"
+          }})
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{ comment.value }}</p>
+          <div class="delete-comment my-2">
+            <button class="btn btn-secondary" (click)="onDeleteComment(comment)">
+              <fa-icon [icon]="deleteIcon"></fa-icon> Delete
+            </button>
+            <p-confirmDialog
+              header="Confirmation"
+              icon="pi pi-exclamation-triangle"
+            >
+            </p-confirmDialog>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <form (ngSubmit)="onAddComment()" #addCommentForm="ngForm">
+        <div class="form-group">
+          <label for="comment"><b>New comment:</b></label>
+          <textarea
+            type="text"
+            class="form-control"
+            id="comment"
+            [(ngModel)]="newComment.value"
+            name="comment"
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Add</button>
+      </form>
+    </div>
+
+    <hr class="my-2" />
+    <div>
+      <div class="row">
+        <div class="col">
+          <h4 class="my-2">Occurs in</h4>
+        </div>
+        <div class="d-flex progress justify-content-between p-0">
+          Occurs in <u style="margin-left: 4px; margin-right: 4px"> {{ occursInTotal }} </u> document(s)
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">
+                Website
+              </th>
+              <th scope="col">
+                Document title
+              </th>
+              <th scope="col" sortable="date" (sort)="onSortOccursIn($event)">
+                <fa-icon [icon]="occursInDateSortIcon"></fa-icon> Date
+              </th>
+              <th scope="col">
+                Nr of occurrences
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="occursIn && occursIn.length == 0">
+              <td colspan="5">No results.</td>
+            </tr>
+            <tr *ngFor="let doc of occursIn">
+              <td>
+                {{ doc.website | uppercase }}
+              </td>
+              <td>
+                <a [routerLink]="['/document', 'occurence', concept.id, doc.document]">
+                  {{ doc.title }}
+                </a>
+              </td>
+              <td>
+                {{ doc.date | date }}
+              </td>
+<!--              <td [innerHTML]="doc.concept_occurs"></td>-->
+              <td>{{doc.occurances_occ}} occurrence(s)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-between p-0">
+          <ngb-pagination
+            (pageChange)="loadOccursInPage($event)"
+            [collectionSize]="occursInTotal"
+            [(page)]="occursInPage"
+            [pageSize]="occursInPageSize"
+            [maxSize]="10"
+            [ellipses]="true"
+            [rotate]="true"
+          >
+          </ngb-pagination>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="row">
+        <div class="col">
+          <h4 class="my-2">Defined in</h4>
+        </div>
+        <div class="d-flex progress justify-content-between p-0">
+          Definitions found: <u>{{ definedInTotal }}</u>
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">
+                Website
+              </th>
+              <th scope="col">
+                Document title
+              </th>
+              <th scope="col" sortable="date" (sort)="onSortDefinedIn($event)">
+                <fa-icon [icon]="definedInDateSortIcon"></fa-icon> Date
+              </th>
+              <th scope="col">
+                Content
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="definedIn && definedIn.length == 0">
+              <td colspan="5">No results.</td>
+            </tr>
+            <tr *ngFor="let doc of definedIn">
+              <td>
+                {{ doc.website | uppercase }}
+              </td>
+              <td>
+                <a [routerLink]="['/document', 'definition', concept.id, doc.id]">
+                  {{ doc.title }}
+                </a>
+              </td>
+              <td>
+                {{ doc.date | date }}
+              </td>
+              <td [innerHTML]="doc.concept_defined"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-between p-0">
+          <ngb-pagination
+            (pageChange)="loadDefinedInPage($event)"
+            [collectionSize]="definedInTotal"
+            [(page)]="definedInPage"
+            [pageSize]="definedInPageSize"
+            [maxSize]="10"
+            [ellipses]="true"
+            [rotate]="true"
+          >
+          </ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-toast position="top-center"></p-toast>

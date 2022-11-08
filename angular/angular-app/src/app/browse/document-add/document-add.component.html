@@ -1,0 +1,65 @@
+<div class="container">
+  <h3 class="mb-4">Add document</h3>
+  <div [hidden]="submitted">
+    <form (ngSubmit)="onSubmit()" #addDocumentForm="ngForm">
+      <div class="form-group mb-4">
+        <label for="name">Title</label>
+        <input type="text" class="form-control" id="title" required [(ngModel)]="document.title" name="title"
+          #title="ngModel">
+        <div [hidden]="title.valid || title.pristine" class="alert alert-danger">
+          Title is required
+        </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label for="url">URL</label>
+<!--        <input type="url"  class="form-control" id="url" required [(ngModel)]="document.url" name="url" #url="ngModel" pattern="[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)">-->
+        <input type="url"  class="form-control" id="url" required [(ngModel)]="document.url" name="url" #url="ngModel" pattern="https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?">
+        <div [hidden]="url.valid || url.pristine"  class="alert alert-danger">
+          URL is required and must be valid.
+        </div>
+      </div>
+
+      <div class="form-group mb-4 mt-5">
+        <div class="input-group">
+          <div><label for="date">Date&nbsp;&nbsp;</label></div>
+          <input type="text" ngbDatepicker #d="ngbDatepicker" class="form-control" id="date" [(ngModel)]="document.date"
+            name="date" #date="ngModel">
+          <div class="input-group-append"><button class="btn-outline-secondary" (click)="d.toggle()" type="button">
+              <fa-icon [icon]="calendarIcon"></fa-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label for="acceptanceState">Acceptance state</label>
+        <div>
+          <p-dropdown [options]="allStates" [(ngModel)]="acceptanceState" required name="acceptanceState"
+            [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" panelStyleClass="input"></p-dropdown>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="summary">Summary</label>
+        <textarea type="text" class="form-control" id="summary" [(ngModel)]="document.summary" name="summary"
+          #summary="ngModel"></textarea>
+      </div>
+
+      <p class="mt-4"><b>Add file</b></p>
+      <div class="add-file">
+        <p-fileUpload name="file" customUpload="true" accept=".pdf" [auto]="true" fileLimit=1 (uploadHandler)="onAddFile($event)">
+        </p-fileUpload>
+      </div>
+
+      <button type="submit" class="btn btn-success mt-3" [disabled]="!addDocumentForm.form.valid">Add</button>
+
+    </form>
+  </div>
+
+  <div [hidden]="!submitted">
+    Adding the document...
+  </div>
+
+  <p-toast position="top-center"></p-toast>
+</div>

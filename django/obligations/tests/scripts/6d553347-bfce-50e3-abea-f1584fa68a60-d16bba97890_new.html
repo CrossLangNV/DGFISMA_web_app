@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<html><head><style>
+
+    p {
+        margin: 0.75em 0px;
+        line-height: 2em;
+        white-space: nowrap;
+    }
+
+    span {
+        border: 2px solid currentColor;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    span {
+        background: lightblue;
+        color: royalblue;
+    }
+
+    .V {
+        background: yellow;
+        color: orangered;
+        font-weight: bold;
+    }
+
+    .ARG0,.ARG1,.ARG2,.C-ARG1 {
+        color: black;
+        background: white;
+    }
+
+    .ARGM-TMP {
+        color: green;
+        background: lightgreen;
+    }
+
+    .ARGM-NEG {
+        color: pink;
+        background: darkred;
+        border-color: darkred;
+    }
+
+    .PUNCT {
+        color: silver;
+        background: white;
+        border: none; padding: 0;
+    }
+
+    .ARG2 {
+        border-style: dotted;
+    }
+
+    .ARG1, .C-ARG1 {
+        color: white;
+        background: black;
+        border-color: black;
+        border-style: solid;
+    }
+
+    .ARG3, .ARGM-PRP, .ARGM-PRD, .ARGM-PNC {
+        color: white;
+        background: royalblue;
+        border-color: royalblue;
+        border-style: solid;
+    }
+
+    .updated-tag {
+        outline: 3px solid fuchsia;
+        outline-offset: 2px;
+    }
+
+    p[data-frequency-class="1"] {
+        opacity: 0.15;
+    }
+
+    p[data-frequency-might-be-3="true"]::before {
+        content: "♺";
+        border: 7px solid royalblue;
+        margin-right: 5px;
+        border-radius: 5px;
+        background: royalblue;
+        color: white;
+    }
+    p[data-frequency-class="3"]::before {
+        border-color: red;
+        background: red;
+        color: yellow;
+    }
+
+    h1,h2,h3,h4,h5,h6 {
+        font-family: sans-serif;
+        font-size: 12px;
+        color: silver;
+        font-weight: bold;
+        margin: 5px 0px;
+        border-left: 3px solid silver;
+        padding-left: 3px;
+    }
+    h2 { border-left-width: 3px; }
+    h2 { border-left-width: 6px; }
+    h3 { border-left-width: 9px; }
+    h4 { border-left-width: 12px; }
+    h5 { border-left-width: 15px; }
+    h6 { border-left-width: 18px; }
+    p + :not(p):not(h6) { margin-top: 45px; }
+
+    [data-old-text] {
+        outline: 4px dashed fuchsia;
+        outline-offset: 1px;
+        position: relative;
+    }
+    [TODO] {
+        outline: 4px dashed red;
+        outline-offset: 1px;
+    }
+
+    [data-old-text]:hover::before {
+        content: attr(data-old-text);
+        background: fuchsia;
+        color: white;
+        position: absolute; top: -2em;
+        padding: 1px 6px; border-radius: 4px;
+    }
+
+</style>
+
+</head><body><h6 original_document_begin="40545" original_document_end="42316">Article 2</h6>
+<h6 original_document_begin="44776" original_document_end="45190">Article 92(4) of the Schengen Convention provides that Member States shall, in accordance with national legislation, exchange through the authorities designated for that purpose (SIRENE), all information necessary in connection with the entry of alerts and for allowing the appropriate action to be taken in cases where persons in respect of whom, and objects in respect of which, data have been entered in the Schengen Information System, are found as a result of searches made in this System.</h6>
+<p data-frequency-class="1" data-frequency-could-be-1="true" data-frequency-could-be-2="false" data-frequency-could-be-3="false" data-frequency-might-be-1="true" data-frequency-might-be-2="true" data-frequency-might-be-3="false" data-frequency-split="0.8406787097454071|0.15461387941613797|0.004707354184938595" original_document_begin="95308" original_document_end="96798">10.6.1 . The discovering SIRENE bureau makes the comparison . <span class="ARG0">The discovering SIRENE bureau</span> <span class="V">sends</span> <span class="ARG1">a G form</span> <span class="ARGM-MNR">through the usual electronic path</span> and asks , in field 089 , the providing SIRENE bureau to send an L form as soon as possible , as well as the fingerprints and pictures , if these are available .</p>
+<p data-frequency-class="1" data-frequency-could-be-1="true" data-frequency-could-be-2="false" data-frequency-could-be-3="false" data-frequency-might-be-1="true" data-frequency-might-be-2="true" data-frequency-might-be-3="false" data-frequency-split="0.719030623137951|0.2687534037046135|0.012215933506377043" original_document_begin="95308" original_document_end="96798">10.6.1 . The discovering SIRENE bureau makes the comparison . The discovering SIRENE bureau sends a G form through the usual electronic path and asks , in field 089 , <span class="ARG0">the providing SIRENE bureau</span> to <span class="V">send</span> <span class="ARG1">an L form</span> <span class="ARGM-TMP">as soon as possible</span> , <span class="C-ARG1">as well as the fingerprints and pictures</span> , <span class="ARGM-TMP">if these are available</span> .</p>
+</body></html>

@@ -1,0 +1,314 @@
+<div class="jumbotron p-1 m-2">
+  <div class="form-group">
+    <div class="row">
+      <p-overlayPanel #op>
+        <ng-template pTemplate>
+          <p><b>Latest query:</b></p>
+          <pre style="color: #e83e8c">
+              {{latestQuery.query}}
+          </pre>
+          <hr/>
+
+          <p><b>RDF query (SPARQL):</b></p>
+          <pre style="color: #e83e8c">
+              {{latestQuery.rdf_query}}
+          </pre>
+          <hr/>
+
+          <p><b>Created at:</b> {{latestQuery.created_at | date:'long'}}</p>
+        </ng-template>
+      </p-overlayPanel>
+      <div *ngIf="!contentLoaded" class="col" style="padding: 32px !important;">
+        <ngx-skeleton-loader
+                             *ngIf="!contentLoaded"
+                             [theme]="{width: '332px', height: '32px'}">
+        </ngx-skeleton-loader>
+        <br/>
+        <ngx-skeleton-loader
+          [theme]="{width: '180px', height: '32px', 'margin-top': '16px', 'margin-right': '20px'}"
+          count="6">
+        </ngx-skeleton-loader>
+        <ngx-skeleton-loader
+          [theme]="{width: '100%', height: '64px', 'margin-top': '32px'}">
+        </ngx-skeleton-loader>
+        <br/>
+        <ngx-skeleton-loader
+          [theme]="{width: '120px', height: '32px', 'margin-top': '10px'}">
+        </ngx-skeleton-loader>
+      </div>
+
+      <div *ngIf="contentLoaded" class="col" style="padding: 32px !important;">
+        <h4>Query for Reporting Obligations</h4>
+        <br/>
+
+        <div class="d-flex justify-content-between p-0">
+          <div class="input-group input-group-sm m-1">
+            <select
+              class="form-control form-control-sm m-1 col-2"
+              [(ngModel)]="website"
+              (change)="filterResetPage()"
+            >
+              <option *ngFor="let f of websites" [ngValue]="f.id">
+                {{ f.name }}
+              </option>
+            </select>
+            <select
+              class="form-control form-control-sm m-1 col-2"
+              [(ngModel)]="filterType"
+              (change)="filterResetPage()"
+            >
+              <option *ngFor="let f of filters" [ngValue]="f.id">
+                {{ f.name }}
+              </option>
+            </select>
+            <select
+              class="form-control form-control-sm m-1 col-2"
+              [(ngModel)]="otherUser"
+              (change)="filterResetPage()"
+            >
+              <option *ngFor="let f of usersFilter" [ngValue]="f.id">
+                {{ f.name }}
+              </option>
+            </select>
+            <div class="form-check m-1 pl-0 pt-1">
+            <span ngbTooltip="Save database queries">
+              <p-inputSwitch
+                (onChange)="filterResetPage()"
+                [(ngModel)]="showDbQueries"
+              >Own</p-inputSwitch
+              >
+            </span>
+            </div>
+
+            <div class="form-check m-1 pl-0 pt-1 mr-auto">
+              <button (click)="fetchRos()" label="" pButton pRipple type="button" icon="pi pi-chevron-circle-right" pTooltip="Reload query" tooltipPosition="bottom" class="p-button-sm"></button>
+            </div>
+
+            <div class="form-check m-1 pl-0 pt-1 ">
+              <button (click)="fetchDbQueries(); op.toggle($event)" label="" pButton pRipple type="button" icon="pi pi-info-circle" class="p-button-sm" pTooltip="Query info" tooltipPosition="bottom"></button>
+            </div>
+
+            <div class="form-check m-1 pl-0 pt-1">
+              <button type="button" pButton pRipple icon="pi pi-file-o" (click)="exportCSV()" class="p-mr-2" pTooltip="Export CSV" tooltipPosition="bottom"></button>
+            </div>
+          </div>
+        </div>
+
+        <hr/>
+
+
+        <p-autoComplete *ngFor="let filter of availableItems| slice:0:6; let i=index"
+                        [suggestions]="roFilterResults"
+                        (completeMethod)="search(filter, $event)"
+                        [multiple]="true"
+                        forceSelection="false"
+                        field="name"
+                        dropdownMode="current"
+                        dropdown="true"
+                        emptyMessage="No results found"
+                        scrollHeight="300px"
+                        [placeholder]="getPlaceholder(filter)"
+                        minLength="0"
+                        (onSelect)="onChangeFilter(filter, $event, 'add')"
+                        (onKeyUp)="fetchRos()"
+                        (onUnselect)="onChangeFilter(filter, $event, 'remove')"
+                        [style]="{'width':'480px'}"
+                        [inputStyle]="{'width':'430px'}"
+
+        ></p-autoComplete>
+
+        <hr/>
+        <p-fieldset [toggleable]="true" collapsed="false">
+          <p-header class="smaller-text">Advanced filters</p-header>
+          <p-autoComplete *ngFor="let filter of availableItems| slice:7:availableItems.length; let i=index"
+                          [suggestions]="roFilterResults"
+                          (completeMethod)="search(filter, $event)"
+                          [multiple]="true"
+                          forceSelection="false"
+                          field="name"
+                          dropdownMode="current"
+                          dropdown="true"
+                          emptyMessage="No results found"
+                          scrollHeight="300px"
+                          [placeholder]="getPlaceholder(filter)"
+                          minLength="0"
+                          (onSelect)="onChangeFilter(filter, $event, 'add')"
+                          (onKeyUp)="fetchRos()"
+                          (onUnselect)="onChangeFilter(filter, $event, 'remove')"
+                          [style]="{'width':'480px'}"
+                          [inputStyle]="{'width':'430px'}"
+
+          ></p-autoComplete>
+        </p-fieldset>
+
+        <!--
+        This combination works for above (hacky because size of "multiple" is not supported yet)
+
+        [style]="{'width':'300px'}"
+        [inputStyle]="{'width':'250px'}"
+        -->
+
+        <br/><br/>
+        <input type="checkbox" [checked]="fromBookmarked" (change)="showOnlyFromBookmarkedCheck($event.target)">&nbsp;&nbsp;Only from bookmarked documents
+        <br/><br/>
+        <button (click)="resetFilters()" label="Reset filters" pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined"></button>
+
+        <div class="row">
+          <div class="col">
+            <hr class="my-2" />
+            <div class="d-flex progress justify-content-between p-0">
+              <div>
+                <!-- Total: <u>{{ stats.total }}</u>
+                Auto-rejected :
+                <u>{{ stats.autoRejectedSize }}</u> Auto-validated :
+                <u>{{ stats.autoAcceptedSize }} </u> -->
+              </div>
+              <div>
+                Reporting Obligations found: <u>{{ collectionSize }}</u>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <table *ngIf="!contentLoaded" class="table table-striped table-bordered table-hover">
+      <thead class="thead-dark">
+      <tr>
+        <th scope="col" sortable="name">
+          <fa-icon [icon]="nameSortIcon"></fa-icon> Label
+        </th>
+        <th scope="col">Tags</th>
+        <th scope="col" sortable="states">
+          <fa-icon [icon]="statesSortIcon"></fa-icon> States
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let n of numSequence(3); let i = index;">
+          <td *ngFor="let n of numSequence(3); let i = index;">
+            <ngx-skeleton-loader
+              [theme]="{width: '100%', height: '64px'}">
+            </ngx-skeleton-loader>
+          </td>
+      </tbody>
+    </table>
+
+    <hr class="my-2" />
+    <p-table
+      *ngIf="contentLoaded"
+      [value]="ros"
+      [paginator]="true"
+      [rows]="5"
+      [lazy]="true"
+      [rowHover]="true"
+      (onLazyLoad)="fetchRosLazy($event)"
+      [totalRecords]="collectionSize"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[5, 10, 50]"
+      [(selection)]="selectedRos"
+      [selectionMode]="single"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="name">
+            Label <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th style="width: 20rem">Tags</th>
+          <th>States</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-ro>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="ro"></p-tableCheckbox>
+          </td>
+          <td>
+            <a
+              (click)="setIndex(ro.id)"
+              [class.font-weight-bold]="selectedIndex === ro.id"
+              [routerLink]="[ro.id]"
+            >{{ ro.name || "(no label)" }}</a
+            >&nbsp;
+            <span
+              *ngIf="ro.comments.length > 0"
+              class="badge badge-secondary"
+            >{{ ro.comments.length }}</span
+            >
+          </td>
+          <td>
+            <p-chips
+              [(ngModel)]="ro.tags"
+              allowDuplicate="false"
+              field="value"
+              (onAdd)="onAddTag($event, ro.tags, ro.id)"
+              (onRemove)="onRemoveTag($event)"
+              (onChipClick)="onClickTag($event)"
+            ></p-chips>
+          </td>
+          <td>
+            <p-chips
+              [(ngModel)]="ro.acceptance_states_count"
+              disabled="true"
+              styleClass="p-chips-state"
+              field="value"
+            >
+              <ng-template let-state pTemplate="state">
+                <div [className]="state.style">
+                  {{state.value}} <fa-icon [icon]="userIcon"></fa-icon>
+                </div>
+              </ng-template>
+            </p-chips>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="paginatorleft">
+        <div class="d-flex justify-content-between p-0">
+          <select
+            class="form-control form-control-sm m-1"
+            [(ngModel)]="action"
+            [disabled]="selectedRos.length == 0"
+          >
+            <option *ngFor="let c of stateValues" [ngValue]="c.value">
+              {{ c.label }}
+            </option>
+          </select>
+          <button
+            type="submit"
+            class="btn btn-link btn-sm"
+            [disabled]="selectedRos.length == 0 || action === 'none'"
+            (click)="doAction()"
+          >
+            Apply
+          </button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="paginatorright">
+        <!-- <div class="ml-3 p-1">
+          <input
+            class="input-sm"
+            type="number"
+            [min]="1"
+            [max]="1000"
+            [(ngModel)]="page"
+            (ngModelChange)="changePage($event)"
+          />
+        </div> -->
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td colspan="4">No records found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <hr class="my-2" />
+  </div>
+  <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+  <router-outlet></router-outlet>
+</div>

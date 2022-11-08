@@ -1,0 +1,145 @@
+<div *ngIf="ro">
+  <div class="jumbotron">
+    <h6><b>Reporting Obligation:</b> <span style="font-weight: normal"> {{ ro.definition }}</span></h6>
+    <div>
+      <div>
+        <p><b>Acceptance states</b></p>
+        <p-chips [(ngModel)]="ro.acceptanceStates" disabled="true" styleClass="p-chips-state">
+          <ng-template let-state pTemplate="state">
+            <div [className]="state.value | lowercase" *ngIf="state.user" pTooltip="created: {{
+                    state.created_at | date: 'MMM d, y - h:mm a'
+                  }}&#013;last updated: {{
+                    state.updated_at | date: 'MMM d, y - h:mm a'
+                  }}" tooltipPosition="top">
+              {{ state.user.username }}
+              <fa-icon *ngIf="
+                      containsGroup(state.user.groups, 'decision');
+                      else elseUserIcon
+                    " [icon]="userLockIcon"></fa-icon>
+              <ng-template #elseUserIcon>
+                <fa-icon [icon]="userIcon"></fa-icon>
+              </ng-template>
+            </div>
+            <div [className]="state.value | lowercase" *ngIf="state.probability_model" pTooltip="confidence: {{
+                    state.accepted_probability | percent: '1.0-2'
+                  }}, created: {{
+                    state.created_at | date: 'MMM d, y - h:mm a'
+                  }}, last updated: {{
+                    state.updated_at | date: 'MMM d, y - h:mm a'
+                  }}" tooltipPosition="top">
+              {{ state.probability_model }}
+              <fa-icon [icon]="chipIcon"></fa-icon>
+            </div>
+          </ng-template>
+        </p-chips>
+      </div>
+      <div>
+        <p><b>Choose Acceptance State:</b></p>
+        <p-selectButton styleClass="mb-4" [options]="stateValues" [(ngModel)]="ro.acceptanceStateValue"
+          (onChange)="onStateChange($event)">
+        </p-selectButton>
+      </div>
+      <div *ngIf="comments.length">
+        <p><b>Comments:</b></p>
+        <div class="card" *ngFor="let comment of comments">
+          <div class="card-header">
+            {{ comment.username }} ({{
+            comment.createdAt | date: "MMM d, y - h:mm a"
+            }})
+          </div>
+          <div class="card-body">
+            <p class="card-text">{{ comment.value }}</p>
+            <div class="delete-comment my-2">
+              <button class="btn btn-secondary" (click)="onDeleteComment(comment)">
+                <fa-icon [icon]="deleteIcon"></fa-icon> Delete
+              </button>
+              <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle">
+              </p-confirmDialog>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <form (ngSubmit)="onAddComment()" #addCommentForm="ngForm">
+          <div class="form-group">
+            <label for="comment"><b>New comment:</b></label>
+            <textarea type="text" class="form-control" id="comment" [(ngModel)]="newComment.value"
+              name="comment"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">Add</button>
+        </form>
+      </div>
+      <div class="row" *ngIf="contentHtmlRo">
+        <h5 class="my-2">Reporting obligation(s) found: </h5>
+        <app-ro-breakdown-single [roContent]="contentHtmlRo"></app-ro-breakdown-single>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <h4 class="my-2">Defined in</h4>
+        </div>
+        <div class="d-flex progress justify-content-between p-0">
+          Results found: <u>{{ occursIn.length }}</u>
+        </div>
+      </div>
+
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thead-dark">
+        <tr>
+          <th scope="col">
+            Website
+          </th>
+          <th scope="col">
+            Document title
+          </th>
+          <th scope="col" sortable="date" (sort)="onSortOccursIn($event)">
+            <fa-icon [icon]="occursInDateSortIcon"></fa-icon> Date
+          </th>
+          <th scope="col">
+            Content
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="occursIn && occursIn.length == 0">
+          <td colspan="5">No results.</td>
+        </tr>
+        <tr *ngFor="let doc of occursIn">
+          <td>
+            {{ doc.website | uppercase }}
+          </td>
+          <td>
+            <a [routerLink]="['/ro/document', ro.id, doc.id]">
+              {{ doc.title }}
+            </a>
+          </td>
+          <td>
+            {{ doc.date | date }}
+          </td>
+          <td [innerHTML]="doc.ro_highlight"></td>
+        </tr>
+        </tbody>
+      </table>
+      <div class="d-flex justify-content-between p-0">
+        <ngb-pagination (pageChange)="loadOccursInPage($event)" [collectionSize]="occursInTotal" [(page)]="occursInPage"
+                        [pageSize]="occursInPageSize" [maxSize]="10" [ellipses]="true" [rotate]="true">
+        </ngb-pagination>
+      </div>
+
+      <div>
+        <hr class="my-4" />
+        <h4>Similar reporting obligations ({{ similarRos.length }}):</h4>
+        <ul class="list-group">
+          <li *ngFor="let ro of similarRos" class="list-group-item">
+            <a [routerLink]="['/ro', ro.id]"
+            >{{ ro.name }}</a
+            >
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p-toast position="top-center"></p-toast>

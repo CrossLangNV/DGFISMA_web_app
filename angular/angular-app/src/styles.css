@@ -1,0 +1,101 @@
+/* You can add global styles to this file, and also import other style files */
+@import "https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css";
+@import "./assets/styles/bootstrap-social.css";
+
+span.highlight {
+  background-color: yellow;
+}
+span.highlight-secondary {
+  background-color: #d6d6d6;
+}
+span.highlight span.highlight-secondary {
+  background-color: yellow;
+}
+
+span.highlight_defi {
+  background-color: #78bcfc;
+}
+span.highlight_term {
+  background-color: #F66161;
+}
+
+span.highlight_ro {
+  background-color: #7BEB7B;
+}
+
+a {
+  cursor: pointer;
+}
+
+app-document-list {
+  width: 99%;
+}
+app-document-validate {
+  width: 99%;
+}
+
+.p-chips-state.ui-chips > ul.ui-inputtext .ui-chips-token {
+  background: none;
+  padding: 0px;
+  /*margin: 0px;*/
+}
+
+.rejected {
+  background: red;
+  padding: 0.2145em 0.429em;
+  min-width: 45px !important;
+  text-align: center !important;
+}
+
+.unvalidated {
+  background: grey;
+  padding: 0.2145em 0.429em;
+  min-width: 45px !important;
+  text-align: center !important;
+}
+
+.accepted {
+  background: green;
+  padding: 0.2145em 0.429em;
+  min-width: 45px !important;
+  text-align: center !important;
+}
+
+.smaller-text {
+  font-size: 16px !important;
+}
+
+p-dropdown {
+  padding: 8px;
+}
+
+body .ui-fieldset .ui-fieldset-legend a {
+  max-height: 64px !important;
+  padding: 2px !important;
+  padding-left: 20px !important;
+}
+
+body .ui-fieldset .ui-fieldset-legend a .ui-fieldset-toggler {
+  font-size: 14px;
+}
+
+.ui-autocomplete-token {
+  max-width: 460px !important;
+}
+
+.ui-autocomplete-items .ui-autocomplete-list-item {
+  max-height: 3em !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.ui-widget {
+  max-width: 100%;
+}
+
+.fixedHeight > ul.ui-inputtext {
+  height: 40px !important;
+  overflow: hidden;
+}

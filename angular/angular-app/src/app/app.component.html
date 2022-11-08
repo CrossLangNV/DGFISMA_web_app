@@ -1,0 +1,39 @@
+<!-- nav -->
+<nav class="navbar navbar-expand navbar-dark bg-dark" *ngIf="currentDjangoUser">
+  <div class="navbar-nav mr-auto">
+    <a class="navbar-brand" routerLink="/">Home</a>
+  </div>
+  <div class="navbar-nav">
+    <a class="nav-item nav-link" routerLink="validator">Catalogue</a>
+    <a class="nav-item nav-link" routerLink="glossary">Glossary</a>
+    <a class="nav-item nav-link" routerLink="ro">Reporting Obligations</a>
+    <a class="nav-item nav-link" routerLink="browse">Sources</a>
+    <a class="nav-item nav-link">{{ currentDjangoUser.username }}</a>
+    <a class="nav-item nav-link" (click)="logout()">Logout</a>
+  </div>
+</nav>
+
+<breadcrumb></breadcrumb>
+
+<!-- main app container -->
+<div class="container-fluid p-4">
+  <div class="row">
+    <div class="col-sm-6 offset-sm-3">
+      <alert></alert>
+    </div>
+  </div>
+  <div class="row">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<nav class="navbar bg-light justify-content-end">
+  <a
+    class="nav-link disabled"
+    href="#"
+    tabindex="-1"
+    style="font-size: 0.7rem"
+    aria-disabled="true"
+    >{{ app_version }}</a
+  >
+</nav>

@@ -1,0 +1,425 @@
+<div class="jumbotron p-1 m-2">
+  <div class="form-group">
+    <div class="row">
+      <div class="col">
+        <div class="d-flex justify-content-between p-0">
+          <div class="input-group input-group-sm m-1">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-sm"
+                >Search for..</span
+              >
+            </div>
+            <input
+              id="content"
+              type="search"
+              name="content"
+              class="form-control form-control-sm"
+              [(ngModel)]="documentService.searchTerm"
+              (ngModelChange)="onSearch($event)"
+            />
+          </div>
+          <select
+            class="form-control form-control-sm m-1 col-2"
+            [(ngModel)]="documentService.filterType"
+            (change)="filterResetPage()"
+          >
+            <option *ngFor="let f of filters" [ngValue]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+          <select
+            class="form-control form-control-sm m-1 col-2"
+            [(ngModel)]="documentService.otherUser"
+            (change)="filterResetPage()"
+          >
+            <option *ngFor="let f of usersFilter" [ngValue]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+
+          <select
+            class="form-control form-control-sm m-1 col-2"
+            [(ngModel)]="documentService.website"
+            (change)="filterResetPage()"
+          >
+            <option *ngFor="let f of websites" [ngValue]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+
+          <div class="form-check m-1 pl-0 pt-1">
+            <span ngbTooltip="Show your own validations">
+              <p-inputSwitch
+                (onChange)="filterResetPage()"
+                [(ngModel)]="documentService.showOnlyOwn"
+                >Own</p-inputSwitch
+              ></span
+            >
+          </div>
+          <div class="form-check m-1 pl-0 pt-1">
+            <span ngbTooltip="Show your bookmarked documents">
+              <p-inputSwitch
+                (onChange)="filterResetPage()"
+                [(ngModel)]="documentService.bookmarks"
+                >Bookmarks</p-inputSwitch
+              ></span
+            >
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <hr class="my-2" />
+            <div
+              class="d-flex progress justify-content-end p-0 my-2"
+              style="font-size: 0.75rem; height: 2rem"
+            >
+              <button
+                style="margin-right: 5px"
+                *ngIf="filterActive"
+                (click)="resetFilters()"
+                label="Reset filters"
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-times"
+                class="p-button-rounded p-button-danger p-button-outlined"
+              ></button>
+              Documents found: <u>{{ collectionSize }}</u>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p-fieldset [toggleable]="true" collapsed="false">
+            <p-header class="smaller-text">Advanced filters</p-header>
+            <p-dropdown
+              [options]="celexOptions"
+              [(ngModel)]="selectedCelex"
+              class="a-dropdown"
+              [filter]="true"
+              optionLabel="name"
+              optionValue="code"
+              (ngModelChange)="onQuery('celex', $event)"
+              [virtualScroll]="true"
+              itemSize="20"
+            >
+            </p-dropdown>
+
+            <p-dropdown
+              [options]="typeOptions"
+              [(ngModel)]="selectedType"
+              class="a-dropdown"
+              [filter]="true"
+              optionLabel="name"
+              optionValue="code"
+              (ngModelChange)="onQuery('type', $event)"
+              [virtualScroll]="true"
+              itemSize="20"
+            >
+            </p-dropdown>
+
+            <p-dropdown
+              [options]="statusOptions"
+              [(ngModel)]="selectedStatus"
+              class="a-dropdown"
+              [filter]="true"
+              optionLabel="name"
+              optionValue="code"
+              (ngModelChange)="onQuery('status', $event)"
+              [virtualScroll]="true"
+              itemSize="20"
+            >
+            </p-dropdown>
+
+            <p-dropdown
+              [options]="eliOptions"
+              [(ngModel)]="selectedEli"
+              class="a-dropdown"
+              [filter]="true"
+              optionLabel="name"
+              optionValue="code"
+              (ngModelChange)="onQuery('eli', $event)"
+              [virtualScroll]="true"
+              itemSize="20"
+            >
+            </p-dropdown>
+
+            <p-dropdown
+              [options]="authorOptions"
+              [(ngModel)]="selectedAuthor"
+              class="a-dropdown"
+              [filter]="true"
+              optionLabel="name"
+              optionValue="code"
+              (ngModelChange)="onQuery('author', $event)"
+              [virtualScroll]="true"
+              itemSize="20"
+            >
+            </p-dropdown>
+
+            <p-dropdown
+              [options]="effectDateOptions"
+              [(ngModel)]="selectedEffectDate"
+              class="a-dropdown"
+              [filter]="true"
+              optionLabel="name"
+              optionValue="code"
+              (ngModelChange)="onQuery('date_of_effect', $event)"
+              [virtualScroll]="true"
+              itemSize="20"
+            >
+            </p-dropdown>
+          </p-fieldset>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <hr class="my-2" />
+            <div class="d-flex progress justify-content-between p-0 my-2">
+              <div>
+                Auto-validated documents:
+                <u
+                  >{{ stats.autoClassifiedSize }} /
+                  {{ stats.totalDocuments }}</u
+                >
+                ( Auto-accepted :
+                <u>{{ stats.autoAcceptedSize }}</u
+                >, Auto-rejected : <u>{{ stats.autoRejectedSize }}</u> )
+              </div>
+            </div>
+            <ngb-progressbar
+              [showValue]="true"
+              type="success"
+              [value]="stats.autoClassifiedPercent"
+              (click)="updateChart1($event)"
+              (click)="op1.toggle($event)"
+            ></ngb-progressbar>
+            <hr class="my-2" />
+            <div class="d-flex progress justify-content-between p-0 my-2">
+              <div>
+                Human validated documents:
+                <u>{{ stats.classifiedSize }} / {{ stats.totalDocuments }}</u>
+                ( Accepted :
+                <u>{{ stats.acceptedSize }}</u
+                >, Rejected : <u>{{ stats.rejectedSize }}</u> )
+              </div>
+            </div>
+
+            <ngb-progressbar
+              [showValue]="true"
+              type="success"
+              [value]="stats.classifiedPercent"
+              (click)="updateChart2($event)"
+              (click)="op2.toggle($event)"
+            ></ngb-progressbar>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p-overlayPanel #op1>
+      <ng-template pTemplate>
+        <p-chart
+          width="350"
+          height="350"
+          type="doughnut"
+          [data]="data1"
+          [options]="options1"
+        ></p-chart>
+      </ng-template>
+    </p-overlayPanel>
+
+    <p-overlayPanel #op2>
+      <ng-template pTemplate>
+        <p-chart
+          width="350"
+          height="350"
+          type="doughnut"
+          [data]="data2"
+          [options]="options2"
+        ></p-chart>
+      </ng-template>
+    </p-overlayPanel>
+
+    <hr class="my-2" />
+    <p-table
+      [value]="documents"
+      [paginator]="true"
+      [rows]="5"
+      [lazy]="true"
+      [rowHover]="true"
+      (onLazyLoad)="fetchDocumentsLazy($event)"
+      [totalRecords]="collectionSize"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[5, 10, 50]"
+      [(selection)]="selectedDocuments"
+      [selectionMode]="single"
+      [(first)]="first"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col" style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th scope="col" style="width: 3rem">
+            <span ngbTooltip="Bookmark">
+              <fa-icon [icon]="bookmarkIcon"></fa-icon>
+            </span>
+          </th>
+          <th pSortableColumn="title" scope="col">
+            Title <p-sortIcon field="title"></p-sortIcon>
+          </th>
+          <th pSortableColumn="date" scope="col" style="width: 7rem">
+            Date <p-sortIcon field="date"></p-sortIcon>
+          </th>
+          <th scope="col" style="width: 18rem">Tags</th>
+          <th pSortableColumn="states" scope="col" style="width: 15rem">
+            States <p-sortIcon field="states"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-document>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="document"></p-tableCheckbox>
+          </td>
+          <td>
+            <span ngbTooltip="Remove bookmark">
+              <div *ngIf="document.bookmark">
+                <a (click)="onRemoveBookmark(document)"
+                  ><fa-icon [icon]="bookmarkIcon"></fa-icon
+                ></a>
+              </div>
+            </span>
+
+            <span ngbTooltip="Bookmark">
+              <div *ngIf="!document.bookmark">
+                <a (click)="onAddBookmark(document)"
+                  ><fa-icon
+                    [icon]="bookmarkIcon"
+                    style="color: rgb(179, 179, 179) !important"
+                  ></fa-icon
+                ></a>
+              </div>
+            </span>
+          </td>
+          <td>
+            <a
+              (click)="setIndex(document.id)"
+              [class.font-weight-bold]="selectedIndex === document.id"
+              [routerLink]="[document.id]"
+              >{{ document.title || "(no title)" | truncate: [120, "..."] }}</a
+            >&nbsp;
+            <span
+              *ngIf="document.comments.length > 0"
+              class="badge badge-secondary"
+              >{{ document.comments.length }}</span
+            >
+          </td>
+          <td>
+            <div>
+              {{ document.date | date }}
+            </div>
+          </td>
+          <td>
+            <p-scrollPanel
+              [style]="{
+                height: '40px',
+                'overflow-y': 'hidden !important',
+                'overflow-x': 'scroll !important',
+                'white-space': 'nowrap'
+              }"
+            >
+              <p-chips
+                [styleClass]="'test'"
+                [(ngModel)]="document.tags"
+                allowDuplicate="false"
+                field="value"
+                (onAdd)="onAddTag($event, document.tags, document.id)"
+                (onRemove)="onRemoveTag($event)"
+                (onChipClick)="onClickTag($event)"
+                (change)="filterResetPage()"
+              ></p-chips>
+            </p-scrollPanel>
+          </td>
+          <td>
+            <p-chips
+              [(ngModel)]="document.acceptance_states_count"
+              disabled="true"
+              styleClass="p-chips-state fixedHeight"
+              field="value"
+            >
+              <ng-template let-state pTemplate="state">
+                <div
+                  *ngIf="state.value == 'Auto-classifier'"
+                  [className]="state.style"
+                >
+                  <fa-icon
+                    *ngIf="state.style == 'rejected'"
+                    [icon]="rejectedIcon"
+                  ></fa-icon>
+                  <fa-icon
+                    *ngIf="state.style == 'accepted'"
+                    [icon]="acceptedIcon"
+                  ></fa-icon>
+                  <fa-icon [icon]="chipIcon"></fa-icon>
+                </div>
+                <div
+                  *ngIf="state.value != 'Auto-classifier'"
+                  [className]="state.style"
+                >
+                  <fa-icon
+                    *ngIf="state.style == 'rejected'"
+                    [icon]="rejectedIcon"
+                  ></fa-icon>
+                  <fa-icon
+                    *ngIf="state.style == 'accepted'"
+                    [icon]="acceptedIcon"
+                  ></fa-icon>
+                  <fa-icon [icon]="userIcon"></fa-icon>
+                </div>
+              </ng-template>
+            </p-chips>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="paginatorleft">
+        <div class="d-flex justify-content-between p-0">
+          <select
+            class="form-control form-control-sm m-1"
+            [(ngModel)]="action"
+            [disabled]="selectedDocuments.length == 0"
+          >
+            <option *ngFor="let c of stateValues" [ngValue]="c.value">
+              {{ c.label }}
+            </option>
+            <option>Mark as bookmarked</option>
+            <option>Remove bookmark</option>
+          </select>
+          <button
+            type="submit"
+            class="btn btn-link btn-sm"
+            [disabled]="selectedDocuments.length == 0 || action === 'none'"
+            (click)="doAction(action)"
+          >
+            Apply
+          </button>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td colspan="6">No records found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <hr class="my-2" />
+  </div>
+  <p-confirmDialog
+    header="Confirmation"
+    icon="pi pi-exclamation-triangle"
+  ></p-confirmDialog>
+  <router-outlet></router-outlet>
+</div>

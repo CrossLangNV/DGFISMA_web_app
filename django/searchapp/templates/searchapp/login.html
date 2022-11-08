@@ -1,0 +1,32 @@
+{% extends 'base_login.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="row min-vh-100 justify-content-center align-items-center">
+    <div class="card login-card col-md-6">
+        <div class="card-body">
+            <h2 class="card-title">Login</h2>
+            <form action="{% url 'searchapp:login' %}" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        {{ form.username|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {{ form.password|as_crispy_field }}
+                    </div>
+                </div>
+                <button class="btn btn-primary" type="submit">Login</button>
+            </form>
+            <button class="btn btn-danger my-2">
+                <a href="{% url 'social-view:begin' 'google-oauth2' %}">Login with Google</a>
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

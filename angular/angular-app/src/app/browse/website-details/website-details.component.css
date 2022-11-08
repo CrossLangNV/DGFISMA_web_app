@@ -1,0 +1,9 @@
+.editable {    
+    border-bottom: 1px dotted blue;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a.document-url {
+    word-break: break-all;
+  }

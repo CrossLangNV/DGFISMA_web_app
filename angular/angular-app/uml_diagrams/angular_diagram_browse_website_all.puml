@@ -1,0 +1,179 @@
+@startuml
+interface Adapter<T> {
+}
+class SolrFile {
+}
+class SolrFileAdapter implements Adapter {
+}
+class Attachment {
+}
+class AttachmentAdapter implements Adapter {
+}
+interface DocumentResults {
+}
+class Document {
+}
+class DocumentAdapter implements Adapter {
+}
+class Website {
+}
+class WebsiteAdapter implements Adapter {
+}
+class AcceptanceState {
+}
+class AcceptanceStateAdapter implements Adapter {
+}
+class Comment {
+}
+class CommentAdapter implements Adapter {
+}
+class Tag {
+}
+class TagAdapter implements Adapter {
+}
+interface ConceptResults {
+}
+class Concept {
+}
+class ConceptAdapter implements Adapter {
+}
+class ConceptTag {
+}
+class ConceptTagAdapter implements Adapter {
+}
+class RoResults {
+}
+class ReportingObligation {
+}
+class RoAdapter implements Adapter {
+}
+class ApiService {
+}
+class UserAdapter implements Adapter {
+}
+class ApiAdminService {
+}
+class WebsiteListComponent implements OnInit {
+    +websites: any[]
+    +addIcon: IconDefinition
+    -apiService: ApiService
+    +ngOnInit(): void
+    +onDelete(id: any): void
+}
+class WebsiteAddComponent {
+    +model: Website
+    +submitted: boolean
+    -apiService: ApiService
+    -router: Router
+    +onSubmit(): void
+}
+class WebsiteDetailsComponent implements OnInit {
+    +website: Website
+    +documents: Document[]
+    +titleIsBeingEdited: boolean
+    +urlIsBeingEdited: boolean
+    +contentIsBeingEdited: boolean
+    +deleteIcon: IconDefinition
+    +addIcon: IconDefinition
+    +adminMode: boolean
+    +acceptanceStates: AcceptanceState[]
+    +acceptanceStatesByDocument: Map<string, AcceptanceState[]>
+    +page: number
+    +pageSize: number
+    +totalDocuments: number
+    -route: ActivatedRoute
+    -apiService: ApiService
+    -apiAdminService: ApiAdminService
+    -router: Router
+    -confirmationService: ConfirmationService
+    +ngOnInit(): void
+    +paginateDocuments(page: number, pageSize: number): Observable<DocumentResults>
+    +loadDocuments(documentResults: Observable<DocumentResults>, isAdmin: boolean): void
+    +loadPage(page: number): void
+    +onDelete(): void
+    +onNameChanged(event: any): void
+    +onUrlChanged(event: any): void
+    +onContentChanged(event: any): void
+}
+class DocumentAddComponent implements OnInit {
+    +websiteId: string
+    +document: Document
+    +acceptanceState: string
+    +allStates: SelectItem[]
+    +calendarIcon: IconDefinition
+    +submitted: boolean
+    -route: ActivatedRoute
+    -apiService: ApiService
+    -router: Router
+    +ngOnInit(): void
+    +onSubmit(): void
+}
+class DocumentDetailsComponent implements OnInit {
+    +websiteId: string
+    +document: Document
+    +deleteIcon: IconDefinition
+    +attachments: Attachment[]
+    +stateValues: SelectItem[]
+    +acceptanceState: AcceptanceState
+    -route: ActivatedRoute
+    -apiService: ApiService
+    -router: Router
+    -confirmationService: ConfirmationService
+    +ngOnInit(): void
+    +onStateChange(event: any): void
+    +onAddFile(event: any): void
+    +onDelete(): void
+    +onDeleteAttachment(attachment: Attachment): void
+}
+SolrFileAdapter *-- SolrFile
+AttachmentAdapter *-- Attachment
+DocumentResults *-- Document
+Document *-- Attachment
+DocumentAdapter *-- Document
+WebsiteAdapter *-- Website
+AcceptanceStateAdapter *-- AcceptanceState
+CommentAdapter *-- Comment
+TagAdapter *-- Tag
+ConceptResults *-- Concept
+ConceptAdapter *-- Concept
+ConceptTagAdapter *-- ConceptTag
+RoResults *-- ReportingObligation
+RoAdapter *-- ReportingObligation
+ApiService *-- ReportingObligation
+ApiService *-- SolrFileAdapter
+ApiService *-- DocumentAdapter
+ApiService *-- WebsiteAdapter
+ApiService *-- AttachmentAdapter
+ApiService *-- AcceptanceStateAdapter
+ApiService *-- CommentAdapter
+ApiService *-- TagAdapter
+ApiService *-- ConceptTagAdapter
+ApiService *-- ConceptAdapter
+ApiService *-- RoAdapter
+ApiService *-- Website
+ApiService *-- DocumentResults
+ApiService *-- Document
+ApiService *-- Attachment
+ApiService *-- AcceptanceState
+ApiService *-- Comment
+ApiService *-- Tag
+ApiService *-- ConceptResults
+ApiService *-- Concept
+ApiService *-- ConceptTag
+ApiService *-- RoResults
+WebsiteListComponent *-- ApiService
+WebsiteAddComponent *-- Website
+WebsiteAddComponent *-- ApiService
+WebsiteDetailsComponent *-- Website
+WebsiteDetailsComponent *-- Document
+WebsiteDetailsComponent *-- AcceptanceState
+WebsiteDetailsComponent *-- ApiService
+WebsiteDetailsComponent *-- ApiAdminService
+WebsiteDetailsComponent *-- DocumentResults
+DocumentAddComponent *-- Document
+DocumentAddComponent *-- ApiService
+DocumentDetailsComponent *-- Document
+DocumentDetailsComponent *-- Attachment
+DocumentDetailsComponent *-- AcceptanceState
+DocumentDetailsComponent *-- ApiService
+@enduml

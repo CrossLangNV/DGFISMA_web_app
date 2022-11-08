@@ -1,0 +1,13 @@
+<h3>Users</h3>
+
+<ul class="list-group list-group-flush">
+  <li class="list-group-item mt-4 px-4 py-4" *ngFor="let user of users">
+    <h4 class="mb-3">{{user.username}}</h4>
+    <p class="text-justify">First name: {{user.firstName}}</p>
+    <p class="text-justify">Last name: {{user.lastName}}</p>
+    <p class="text-justify">{{user.email}}</p>
+    <p class="text-justify">Date joined: {{user.dateJoined | date}}</p>
+    <p class="text-justify">Last login: {{user.lastLogin | date}}</p>
+    <p class="text-justify">Admin: {{user.isSuperuser}}</p>
+  </li>
+</ul>

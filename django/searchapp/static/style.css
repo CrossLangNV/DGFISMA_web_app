@@ -1,0 +1,3 @@
+li { background: white; }
+li:nth-child(odd) { background: whitesmoke; }
+.highlight { background: yellow; }

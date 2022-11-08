@@ -1,0 +1,131 @@
+version: '3'
+services:
+  uima:
+    image: docker.crosslang.com/ctlg-manager/uima-html-to-text:develop-latest
+    ports:
+      - "8008:8008"
+      - "5005:5005"
+
+  angular:
+    build: ./angular
+    ports:
+      - "8080:80"
+    env_file:
+      - ./secrets/django-docker.env
+    depends_on:
+      - django
+
+  django:
+    build: ./django
+    env_file:
+      - ./secrets/django-docker.env
+    volumes:
+      - ./django:/django
+    command: ./start.sh
+    restart:
+      always
+    depends_on:
+      - postgres
+      - solr
+      - minio
+
+  django_nginx:
+    restart: always
+    build: ./django/nginx
+    depends_on:
+      - django
+    ports:
+      - "8000:8000"
+
+  celery:
+    build: ./django
+    command: celery -A scheduler worker -l info
+    volumes:
+      - ./django:/django
+    env_file:
+      - ./secrets/django-docker.env
+    restart:
+      always
+    depends_on:
+      - django
+      - rabbitmq
+
+  celery_beat:
+    build: ./django
+    command: celery -A scheduler beat -l info --pidfile=
+    volumes:
+      - ./django:/django
+    env_file:
+      - ./secrets/django-docker.env
+    restart:
+      always
+    depends_on:
+      - django
+      - rabbitmq
+
+  flower:
+    build: ./django
+    ports:
+      - "5555:5555"
+    command: flower -A scheduler --port=5555
+    volumes:
+      - ./django:/django
+    env_file:
+      - ./secrets/django-docker.env
+    restart:
+      always
+    depends_on:
+      - celery
+
+  rabbitmq:
+    image: rabbitmq
+    env_file:
+      - ./secrets/django-docker.env
+    ports:
+      - "5672:5672"
+
+  solr:
+    image: solr:8.7-slim
+    ports:
+      - "8983:8983"
+    environment:
+      - SOLR_HEAP=5g
+    volumes:
+      - solr:/var/solr
+    command: bash -c "precreate-core documents && precreate-core archive && solr-foreground"
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./secrets/django-docker.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  docclass:
+    image: docker.crosslang.com/ctlg-manager/docclass:master-latest
+    ports:
+      - "5000:5000"
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "19000:9000"
+      - "19001:9001"
+    env_file:
+      - ./secrets/django-docker.env
+    volumes:
+      - minio:/data
+
+  tika:
+    image: apache/tika
+    ports:
+      - "9998:9998"
+
+volumes:
+  solr:
+  postgres:
+  minio:
+  train:

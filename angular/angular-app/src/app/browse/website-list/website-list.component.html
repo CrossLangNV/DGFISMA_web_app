@@ -1,0 +1,24 @@
+<div class="jumbotron">
+  <div class="row">
+    <h3>Websites</h3>
+  </div>
+  <div class="create-website my-2 row">
+    <button class="btn btn-info mt-4 mb-3" routerLink="add">
+      <fa-icon [icon]="addIcon"></fa-icon> Add
+    </button>
+  </div>
+
+  <ul class="list-group list-group-flush">
+    <div class="row">
+      <li class="list-group-item mt-4 col-lg-12 px-4 py-4" *ngFor="let website of websites">
+        <h4 class="mb-3 text-break">
+          <a routerLink="{{ website.id }}">{{ website.name }}</a>&nbsp;<span class="badge badge-secondary">{{
+          website.totalDocuments
+        }}</span>
+        </h4>
+        <p class="text-justify text-break">{{ website.content }}</p>
+        <a class="website-url text-break" href="{{ website.url }}">{{ website.url }}</a>
+      </li>
+    </div>
+  </ul>
+</div>

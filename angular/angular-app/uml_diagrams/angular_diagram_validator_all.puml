@@ -1,0 +1,210 @@
+@startuml
+interface Adapter<T> {
+}
+class SolrFile {
+}
+class SolrFileAdapter implements Adapter {
+}
+class Attachment {
+}
+class AttachmentAdapter implements Adapter {
+}
+interface DocumentResults {
+}
+class Document {
+}
+class DocumentAdapter implements Adapter {
+}
+class Website {
+}
+class WebsiteAdapter implements Adapter {
+}
+class AcceptanceState {
+}
+class AcceptanceStateAdapter implements Adapter {
+}
+class Comment {
+}
+class CommentAdapter implements Adapter {
+}
+class Tag {
+}
+class TagAdapter implements Adapter {
+}
+interface ConceptResults {
+}
+class Concept {
+}
+class ConceptAdapter implements Adapter {
+}
+class ConceptTag {
+}
+class ConceptTagAdapter implements Adapter {
+}
+class RoResults {
+}
+class ReportingObligation {
+}
+class RoAdapter implements Adapter {
+}
+class ApiService {
+}
+class User {
+}
+class UserAdapter implements Adapter {
+}
+class ApiAdminService {
+}
+class DjangoUser {
+}
+class AuthenticationService {
+}
+interface SortEvent {
+    +column: string
+    +direction: SortDirection
+}
+class NgbdSortableHeaderDirective {
+    +sortable: string
+    +direction: SortDirection
+    +sort: EventEmitter<SortEvent>
+    +rotate(): void
+}
+class DocumentListComponent implements OnInit {
+    +headers: QueryList<NgbdSortableHeaderDirective>
+    +documents$: Document[]
+    +selectedId: number
+    +page: number
+    +previousPage: any
+    +data1: any
+    +data2: any
+    +options1: { title: { display: boolean; text: string; fontSize: number; }; legend: { position: string; }; }
+    +options2: { title: { display: boolean; text: string; fontSize: number; }; legend: { position: string; }; }
+    +pageSize: number
+    +showOnlyOwn: boolean
+    +filterActive: boolean
+    +stats: { total: number; unvalidatedSize: number; unvalidatedPercent: number; acceptedSize: number; acceptedPercent: number; rejectedSize: number; rejectedPercent: number; autoUnvalidatedSize: number; ... 8 more ...; autoValidatedPercent: number; }
+    +collectionSize: number
+    +filterType: string
+    +filterTag: string
+    +keyword: string
+    +sortBy: string
+    +userIcon: IconDefinition
+    +chipIcon: IconDefinition
+    +reloadIcon: IconDefinition
+    +resetIcon: IconDefinition
+    +titleSortIcon: IconDefinition
+    +dateSortIcon: IconDefinition
+    +statesSortIcon: IconDefinition
+    +filters: { id: string; name: string; }[]
+    +websites: { id: string; name: string; }[]
+    +websiteFilter: string
+    +searchTermChanged: Subject<string>
+    +currentDjangoUser: DjangoUser
+    +selectedIndex: string
+    -route: ActivatedRoute
+    -router: Router
+    -service: ApiService
+    -authenticationService: AuthenticationService
+    +fetchDocuments(): void
+    +ngOnInit(): void
+    +onSearch(keyword: string): void
+    +onSort(__0: SortEvent): void
+    +onAddTag(event: any, tags: any, documentId: any): void
+    +onRemoveTag(event: any): void
+    +onClickTag(event: any): void
+    +loadPage(page: number): void
+    +filterResetPage(): void
+    +setIndex(index: string): void
+    +checkFilters(): void
+    +resetFilters(): void
+    +updateChart1(event: Event): void
+    +updateChart2(event: Event): void
+}
+class DocumentValidateComponent implements OnInit {
+    +document: Document
+    +consolidatedVersions: any
+    +stateValues: SelectItem[]
+    +cities: SelectItem[]
+    +selectedCities: string[]
+    +acceptanceState: AcceptanceState
+    +comments: Comment[]
+    +newComment: Comment
+    +deleteIcon: IconDefinition
+    +currentDjangoUser: DjangoUser
+    +attachment: Attachment
+    -route: ActivatedRoute
+    -router: Router
+    -service: ApiService
+    -adminService: ApiAdminService
+    -authenticationService: AuthenticationService
+    -modalService: NgbModal
+    -messageService: MessageService
+    -confirmationService: ConfirmationService
+    -angularDocument: any
+    +ngOnInit(): void
+    +setupArbor(): void
+    +onStateChange(event: any): void
+    +onAddComment(): void
+    +onDeleteComment(comment: Comment): void
+    +openModal(targetModal: any, attachmentId: string): void
+    +onSubmit(): void
+    +goToLink(url: string): void
+}
+SolrFileAdapter *-- SolrFile
+AttachmentAdapter *-- Attachment
+DocumentResults *-- Document
+Document *-- Attachment
+DocumentAdapter *-- Document
+WebsiteAdapter *-- Website
+AcceptanceStateAdapter *-- AcceptanceState
+CommentAdapter *-- Comment
+TagAdapter *-- Tag
+ConceptResults *-- Concept
+ConceptAdapter *-- Concept
+ConceptTagAdapter *-- ConceptTag
+RoResults *-- ReportingObligation
+RoAdapter *-- ReportingObligation
+ApiService *-- ReportingObligation
+ApiService *-- SolrFileAdapter
+ApiService *-- DocumentAdapter
+ApiService *-- WebsiteAdapter
+ApiService *-- AttachmentAdapter
+ApiService *-- AcceptanceStateAdapter
+ApiService *-- CommentAdapter
+ApiService *-- TagAdapter
+ApiService *-- ConceptTagAdapter
+ApiService *-- ConceptAdapter
+ApiService *-- RoAdapter
+ApiService *-- Website
+ApiService *-- DocumentResults
+ApiService *-- Document
+ApiService *-- Attachment
+ApiService *-- AcceptanceState
+ApiService *-- Comment
+ApiService *-- Tag
+ApiService *-- ConceptResults
+ApiService *-- Concept
+ApiService *-- ConceptTag
+ApiService *-- RoResults
+UserAdapter *-- User
+ApiAdminService *-- UserAdapter
+ApiAdminService *-- AcceptanceStateAdapter
+ApiAdminService *-- User
+ApiAdminService *-- AcceptanceState
+AuthenticationService *-- DjangoUser
+NgbdSortableHeaderDirective *-- SortEvent
+DocumentListComponent *-- NgbdSortableHeaderDirective
+DocumentListComponent *-- Document
+DocumentListComponent *-- DjangoUser
+DocumentListComponent *-- ApiService
+DocumentListComponent *-- AuthenticationService
+DocumentListComponent *-- SortEvent
+DocumentValidateComponent *-- Document
+DocumentValidateComponent *-- AcceptanceState
+DocumentValidateComponent *-- Comment
+DocumentValidateComponent *-- DjangoUser
+DocumentValidateComponent *-- Attachment
+DocumentValidateComponent *-- ApiService
+DocumentValidateComponent *-- ApiAdminService
+DocumentValidateComponent *-- AuthenticationService
+@enduml

@@ -1,0 +1,35 @@
+/* The below changes are necassery for the DG Fisma use case of annotator. */
+/* I.e.: no annotation comments. */
+
+/* Hiding the annotation comment textarea */
+.annotator-item textarea {
+    display: none !important;
+}
+
+/* Hiding the annotation comment textarea resize handle */
+.annotator-item span.annotator-resize {
+    display: none;
+}
+
+/* Making the annotation box less wide */
+.annotator-widget {
+    min-width: 50px !important;
+}
+
+.annotator-editor .annotator-controls {
+    /* Fixing the corners in case the annotation comment textarea is hidden */
+    border-top-left-radius: 5px !important;
+    border-top-right-radius: 5px !important;
+    /* In this case, the annotation box should be wider */
+    min-width: 139px;
+}
+
+/* Hiding the "no comment" note on the mouseover box */
+.annotator-item div i {
+    display: none;
+}
+
+/* Hiding the edit button on the mouseover box */
+button.annotator-edit {
+    display: none !important;
+}

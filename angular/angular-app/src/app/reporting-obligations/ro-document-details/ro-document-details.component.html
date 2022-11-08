@@ -1,0 +1,54 @@
+<div class="jumbotron m-2" *ngIf="document; else elseBlock">
+  <h3 class="mb-4">{{ ro.name }}</h3>
+  <hr class="my-4" />
+  <p class="font-italic">{{ document.date | date }}</p>
+  <h4>
+    {{ document.websiteName }} :
+    <span *ngIf="document.titlePrefix">{{ document.titlePrefix }} : </span>
+    <a (click)="goToLink(document.url)" class="text-primary">{{ document.title || "(no title)" }}
+    </a>
+  </h4>
+
+  <p>
+    <span class="font-italic">{{ document.date | date }}</span>
+  </p>
+
+  <p *ngIf="document.type" class=""><u>Type:</u> {{ document.type }}</p>
+  <p *ngIf="document.author" class=""><u>Author:</u> {{ document.author }}</p>
+  <p *ngIf="document.celex" class=""><u>Celex:</u> {{ document.celex }}</p>
+  <p *ngIf="document.eli" class=""><u>Eli:</u> {{ document.eli }}</p>
+  <p *ngIf="document.status" class=""><u>Status:</u> {{ document.status }}</p>
+  <p *ngIf="document.various" class="">
+    <u>Various:</u> {{ document.various }}
+  </p>
+  <div *ngIf="document.summary">
+    <div>
+      <hr class="my-4" />
+      <samp class="text-justify">{{ document.summary }}</samp>
+    </div>
+  </div>
+
+  <br />
+  <h4>Reporting Obligations in document</h4>
+
+  <div *ngIf="content_html_ro">
+    <hr class="my-4" />
+    <div>
+      <app-ro-breakdown></app-ro-breakdown>
+    </div>
+  </div>
+
+  <div *ngIf="content_html_ro === null">
+    <p>None</p>
+  </div>
+
+  <div *ngIf="content_html">
+    <hr class="my-4" />
+    <div class="container-fluid w-50">
+      <input type="checkbox" checked (change)="showOriginalHighlightingCheck($event.target)">&nbsp;&nbsp;Show original
+      highlighting<br><br>
+      <div attr.subject-id="{{ ro.id }}" attr.doc-id="{{ document.id }}"
+        attr.annotation-type="{{ instanceTypeAnnotations }}" appAnnotator [innerHTML]="content_html"></div>
+    </div>
+  </div>
+</div>
